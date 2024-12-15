@@ -1,21 +1,23 @@
-import { createApi } from '@reduxjs/toolkit/query';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { fakePokemonDetailData, fakePokemonListing } from '../constants/data';
 
-const api = createApi({
-  baseQuery: () => {},
+type Pokemon = typeof fakePokemonDetailData;
+
+type List = typeof fakePokemonListing;
+
+export const pokemonApi = createApi({
+  reducerPath: 'pokemonApi',
+  baseQuery: fetchBaseQuery({ baseUrl: 'https://pokeapi.co/api/v2/' }),
   endpoints: builder => ({
-    pokemonList: builder.query({
-      async queryFn() {
-        return { data: fakePokemonListing };
-      },
+    getPokemonByName: builder.query<Pokemon, string>({
+      query: name => `pokemon/${name}`,
+      keepUnusedDataFor: 60, // Keeps unused data in cache for 60 seconds
     }),
-    fakePokemonDetail: builder.query({
-      async queryFn() {
-        return { data: fakePokemonDetailData };
-      },
+    getPokemonList: builder.query<List, void>({
+      query: () => `pokemon?limit=10`,
+      keepUnusedDataFor: 1800,
     }),
   }),
 });
 
-export const { usePokemonListQuery, useFakePokemonDetailQuery } = api;
-export { api };
+export const { useGetPokemonByNameQuery, useGetPokemonListQuery } = pokemonApi;

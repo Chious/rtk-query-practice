@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import './App.css';
-import { fakePokemonDetailData, fakePokemonListing } from './constants/data';
+import {
+  useGetPokemonByNameQuery,
+  useGetPokemonListQuery,
+} from './api/pokemonApi';
 
 export default function App() {
   const [selectedPokemon, setSelectedPokemon] = useState<string | undefined>(
@@ -35,7 +38,19 @@ type PokemonListProps = {
 };
 
 function PokemonList({ onPokemonSelected }: PokemonListProps) {
-  const data = fakePokemonListing;
+  const { data, isLoading, isError, isSuccess } = useGetPokemonListQuery();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error</div>;
+  }
+
+  if (!isSuccess) {
+    return null;
+  }
 
   return (
     <article>
@@ -63,7 +78,16 @@ type PokemonDetailsProps = {
 };
 
 function PokemonDetails({ pokemonName }: PokemonDetailsProps) {
-  const data = fakePokemonDetailData;
+  const { data, isLoading, isError } = useGetPokemonByNameQuery(pokemonName);
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error</div>;
+  }
+
+  if (!data) return <div>No data available!</div>;
 
   return (
     <article>
